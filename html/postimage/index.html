@@ -1,7 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=320,initial-scale=1.0">
+
+<title>milkcocoaのテストSP</title>
+<meta name="description" content="milkcocoaのテストSP">
+<meta name="keywords" content="test,">
+<meta name="format-detection" content="telephone=no">
+
+<link href="./css/style_sp.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="page-sp">
+<div class="wrap">
+
+
+<section id="Body">
+	<div id="output"></div>
+</section><!-- /#Body -->
+
+
+
+<footer>
+	<p class="text-center">Copyright &copy; ONEMOREDOT. inc. All rights reserved.</p>
+</footer>
+
+</div><!-- /.wrap -->
 <script src="./js/libs/jquery-1.11.3.min.js"></script>
 <script src="https://cdn.mlkcca.com/v2.0.0/milkcocoa.js"></script>
 <script src="./js/function.js"></script>
-{% if page.page == 'sp' %}
+
 <script>
 window.onload = function(){
 
@@ -44,26 +75,7 @@ window.onload = function(){
   }
 };
 </script>
-{% else %}
-<script>
-window.onload = function(){
 
-  var image = document.getElementById('image');
 
-  // app_idは自分のものに書き換えてください
-  var milkcocoa = new MilkCocoa("maxigxffjt7.mlkcca.com");
-  var ds = milkcocoa.dataStore('gravity');
-
-  ds.on('send', changeViewFromSentMode);
-
-  function changeViewFromSentMode(sent){
-    if(sent.value.mode === 'portrait'){
-      image.className = '';
-    }
-    if(sent.value.mode === 'landscape'){
-      image.className = 'is-landscape';
-    }
-  }
-};
-</script>
-{% endif %}
+</body>
+</html>
