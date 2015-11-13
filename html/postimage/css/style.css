@@ -65,3 +65,8 @@ section {
   border-radius: 50%;
   background-color: #f00;
 }
+
+#output {
+  width: 100%;
+  min-height: 350px;
+}

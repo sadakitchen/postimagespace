@@ -17,7 +17,9 @@
 
 
 <section id="Body">
-	<div id="output"></div>
+	<div id="output">
+		<div id="Ball" class="ball"></div>
+	</div>
 </section><!-- /#Body -->
 
 
@@ -35,18 +37,20 @@
 $(function(){
 	var currentMode = 'portrait';
 	var output = document.getElementById('output');
+	var ball_dom = document.getElementById('Ball');
 
 	// app_idは自分のものに書き換えてください
 	var milkcocoa = new MilkCocoa("maxigxffjt7.mlkcca.com");
 	var ds = milkcocoa.dataStore('gravity');
 
-	var ball = new Ball(200,200,30);
-	output.innerHTML = '<div class="ball" style="'
-		+'left:'+ball.posX+'px;'
-		+'top:'+ball.posY+'px;'
-		+'width:'+ball.size+'px;'
-		+'height:'+ball.size+'px;'
-		+'">';
+	var _ball = new Ball(ball_dom,200,200,60);
+	$('#Ball').css({
+		'left':_ball.posX+'px',
+		'top':_ball.posY+'px',
+		'width':_ball.size+'px',
+		'height':_ball.size+'px'
+	});
+	
 
 	/*
 	window.addEventListener('devicemotion', function(e){
