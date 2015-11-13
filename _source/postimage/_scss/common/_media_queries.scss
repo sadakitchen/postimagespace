@@ -1,0 +1,36 @@
+@mixin mqXL {
+  //$widthXL（1280px）以上の場合
+  @media (min-width: $widthXL) {
+    @content;
+  }
+}
+@mixin mqLG {
+  //$widthLG（1024px）〜$widthXL-1（1279px）の場合
+  @media (min-width: $widthLG) and (max-width: ($widthXL - 1)) {
+    @content;
+  }
+}
+@mixin mqMD {
+  //$widthMD（768px）〜$widthLG-1（1023px）の場合
+  @media (min-width: $widthMD) and (max-width: ($widthLG - 1)) {
+    @content;
+  }
+}
+@mixin mqSM {
+  //$widthSM（568px）〜$widthMD-1（767px）の場合
+  @media (min-width: $widthSM) and (max-width: ($widthMD - 1)) {
+    @content;
+  }
+}
+@mixin mqSM_under {
+  //$widthSM-1（767px）の場合
+  @media (max-width: ($widthMD - 1)) {
+    @content;
+  }
+}
+@mixin mqXS {
+  //$widthSM-1（567px）以下の場合
+  @media (max-width: ($widthSM - 1)) {
+    @content;
+  }
+}

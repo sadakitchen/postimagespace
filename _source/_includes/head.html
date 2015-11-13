@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+{% if page.page == 'sp' %}
+<meta name="viewport" content="width=320,initial-scale=1.0">
+{% else %}
+<meta name="viewport" content="width=1024">
+{% endif %}
+<title>{{ page.title }}</title>
+<meta name="description" content="{{ page.description }}">
+<meta name="keywords" content="{{ page.keywords }}">
+<meta name="format-detection" content="telephone=no">
+{% if page.page == 'sp' %}
+<link href="./css/style_sp.css" rel="stylesheet" type="text/css">
+{% else %}
+<link href="./css/style.css" rel="stylesheet" type="text/css">
+{% endif %}
+</head>
