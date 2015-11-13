@@ -3,67 +3,76 @@
 <script src="./js/function.js"></script>
 {% if page.page == 'sp' %}
 <script>
-window.onload = function(){
+$(function(){
+	var currentMode = 'portrait';
+	var output = document.getElementById('output');
 
-  var currentMode = 'portrait';
-  var output = document.getElementById('output');
+	// app_idは自分のものに書き換えてください
+	var milkcocoa = new MilkCocoa("maxigxffjt7.mlkcca.com");
+	var ds = milkcocoa.dataStore('gravity');
 
-  // app_idは自分のものに書き換えてください
-  var milkcocoa = new MilkCocoa("maxigxffjt7.mlkcca.com");
-  var ds = milkcocoa.dataStore('gravity');
+	var ball = new Ball(200,200,30);
+	output.innerHTML = '<div class="ball" style="'
+		+'left:'+ball.posX+'px;'
+		+'top:'+ball.posY+'px;'
+		+'width:'+ball.size+'px;'
+		+'height:'+ball.size+'px;'
+		+'">';
 
-  window.addEventListener('devicemotion', function(e){
-    gravity = e.accelerationIncludingGravity;
+	/*
+	window.addEventListener('devicemotion', function(e){
+		gravity = e.accelerationIncludingGravity;
 
-    output.innerHTML
-    = 'x方向: '+gravity.x
-    + '<br>y方向: '+gravity.y;
+		output.innerHTML
+		= 'x方向: '+gravity.x
+		+ '<br>y方向: '+gravity.y;
 
-    sendModeFromGravityValue(gravity);
+		sendModeFromGravityValue(gravity);
 
-  },true);
+	},true);
 
 
-  function sendModeFromGravityValue(g){
+	function sendModeFromGravityValue(g){
 
-    // 絶対値を取得
-    var x = Math.sqrt(g.x * g.x);
-    var y = Math.sqrt(g.y * g.y);
+		// 絶対値を取得
+		var x = Math.sqrt(g.x * g.x);
+		var y = Math.sqrt(g.y * g.y);
 
-    // portrait -> landscape
-    if(currentMode === 'portrait' && x > 8.5 && y < 1.5){
-      currentMode = 'landscape';
-      ds.send({mode: currentMode});
-    }
+		// portrait -> landscape
+		if(currentMode === 'portrait' && x > 8.5 && y < 1.5){
+			currentMode = 'landscape';
+			ds.send({mode: currentMode});
+		}
 
-    // landscape -> portrait
-    if(currentMode === 'landscape' && x < 1.5 && y > 8.5){
-      currentMode = 'portrait';
-      ds.send({mode: currentMode});
-    }
-  }
-};
+		// landscape -> portrait
+		if(currentMode === 'landscape' && x < 1.5 && y > 8.5){
+			currentMode = 'portrait';
+			ds.send({mode: currentMode});
+		}
+	}
+	*/
+});
 </script>
 {% else %}
 <script>
 window.onload = function(){
 
-  var image = document.getElementById('image');
+	var image = document.getElementById('image');
 
-  // app_idは自分のものに書き換えてください
-  var milkcocoa = new MilkCocoa("maxigxffjt7.mlkcca.com");
-  var ds = milkcocoa.dataStore('gravity');
+	// app_idは自分のものに書き換えてください
+	var milkcocoa = new MilkCocoa("maxigxffjt7.mlkcca.com");
+	var ds = milkcocoa.dataStore('gravity');
 
-  ds.on('send', changeViewFromSentMode);
+	ds.on('send', changeViewFromSentMode);
 
-  function changeViewFromSentMode(sent){
-    if(sent.value.mode === 'portrait'){
-      image.className = '';
-    }
-    if(sent.value.mode === 'landscape'){
-      image.className = 'is-landscape';
-    }
-  }
+	function changeViewFromSentMode(sent){
+		if(sent.value.mode === 'portrait'){
+			image.className = '';
+		}
+		if(sent.value.mode === 'landscape'){
+			image.className = 'is-landscape';
+		}
+	}
 };
 </script>
 {% endif %}

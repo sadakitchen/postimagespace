@@ -9,9 +9,7 @@
 <meta name="description" content="milkcocoaのテストPC">
 <meta name="keywords" content="test,">
 <meta name="format-detection" content="telephone=no">
-
 <link href="./css/style.css" rel="stylesheet" type="text/css">
-
 </head>
 
 <body class="page-pc">
@@ -48,22 +46,22 @@
 <script>
 window.onload = function(){
 
-  var image = document.getElementById('image');
+	var image = document.getElementById('image');
 
-  // app_idは自分のものに書き換えてください
-  var milkcocoa = new MilkCocoa("maxigxffjt7.mlkcca.com");
-  var ds = milkcocoa.dataStore('gravity');
+	// app_idは自分のものに書き換えてください
+	var milkcocoa = new MilkCocoa("maxigxffjt7.mlkcca.com");
+	var ds = milkcocoa.dataStore('gravity');
 
-  ds.on('send', changeViewFromSentMode);
+	ds.on('send', changeViewFromSentMode);
 
-  function changeViewFromSentMode(sent){
-    if(sent.value.mode === 'portrait'){
-      image.className = '';
-    }
-    if(sent.value.mode === 'landscape'){
-      image.className = 'is-landscape';
-    }
-  }
+	function changeViewFromSentMode(sent){
+		if(sent.value.mode === 'portrait'){
+			image.className = '';
+		}
+		if(sent.value.mode === 'landscape'){
+			image.className = 'is-landscape';
+		}
+	}
 };
 </script>
 
