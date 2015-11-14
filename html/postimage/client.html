@@ -29,7 +29,9 @@
 }
 </style>
 <section id="Body">
-	<img id="image" src="https://s3-ap-northeast-1.amazonaws.com/new-tutorial/smartphone.min.svg" alt="スマートフォン">
+	<div id="output">
+		<img id="image" src="https://s3-ap-northeast-1.amazonaws.com/new-tutorial/smartphone.min.svg" alt="スマートフォン">
+	</div>
 </section><!-- /#Body -->
 
 
@@ -44,7 +46,7 @@
 <script src="./js/function.js"></script>
 
 <script>
-window.onload = function(){
+$(function(){
 
 	var image = document.getElementById('image');
 
@@ -62,7 +64,7 @@ window.onload = function(){
 			image.className = 'is-landscape';
 		}
 	}
-};
+});
 </script>
 
 

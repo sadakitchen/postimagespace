@@ -19,7 +19,7 @@ class Ball {
 	private EVENTNAME_TOUCHEND:string = this.isSupportTouch ? 'touchend' : 'mouseup';
 	public dom: HTMLElement;
 
-	constructor( _dom: HTMLElement, x: number, y: number, public size: number) {
+	constructor( _dom: HTMLElement, x: number, y: number, public size: number, public color: string) {
 
 		// this.isSupportTouch = ('ontouchstart' in window);
 		console.log("isSupportTouch:" +this.isSupportTouch);
@@ -29,12 +29,10 @@ class Ball {
 
 		this.dom = _dom;
 
-		// プレスイベント
-		this.dom.addEventListener(this.EVENTNAME_TOUCHSTART, this.onPress,false);
-		this.dom.addEventListener(this.EVENTNAME_TOUCHMOVE, this.enterFrame,false);
-		this.dom.addEventListener(this.EVENTNAME_TOUCHEND, this.onRelease,false);
+		this.dom.style.left = this.posX+"px";
+		this.dom.style.top = this.posY+"px";
 
-		this.timerToken = setInterval((e) => this.enterFrame(e),33);
+		
 	}
 
 	private enterFrame = (e: any): void => {
@@ -62,16 +60,16 @@ class Ball {
 			this.dom.style.top = _posY+"px";
 		} else {
 			// console.log(this.spdX);
-			if (this.posX > this.stageW - this.size) {
-				this.posX = this.stageW - this.size;
+			if (this.posX > this.stageW - this.size * 0.5) {
+				this.posX = this.stageW - this.size * 0.5;
 				this.spdX = this.spdX * -1;
 			}
-			if (this.posX < 0) {
-				this.posX = 0;
+			if (this.posX < 0 + this.size * 0.5) {
+				this.posX = 0 + this.size * 0.5;
 				this.spdX = this.spdX * -1;
 			}
-			if (this.posY > this.stageH - this.size) {
-				this.posY = this.stageH - this.size;
+			if (this.posY > this.stageH - this.size * 0.5) {
+				this.posY = this.stageH - this.size * 0.5;
 				this.spdY = this.spdY * -1;
 			}
 			if (this.posY < 0 - this.size) {
@@ -79,12 +77,14 @@ class Ball {
 				// this.spdY = this.spdY * -1;
 				this.dom.removeEventListener(this.EVENTNAME_TOUCHMOVE,this.enterFrame,false);
 				clearInterval(this.timerToken);
+
+				// send milkcococa
 			}
 			this.posX += this.spdX;
 			this.posY += this.spdY;
 
-			this.dom.style.left = this.posX+"px";
-			this.dom.style.top = this.posY+"px";
+			this.dom.style.left = (this.posX - this.size * 0.5)+"px";
+			this.dom.style.top = (this.posY - this.size * 0.5)+"px";
 		}
 	}
 	private onPress = (e :any) => {
@@ -106,6 +106,14 @@ class Ball {
 		console.log("setRect: w:"+w + " h:"+h);
 		this.stageW = w;
 		this.stageH = h;
+	}
+	public start = () => {
+		// プレスイベント
+		this.dom.addEventListener(this.EVENTNAME_TOUCHSTART, this.onPress, false);
+		this.dom.addEventListener(this.EVENTNAME_TOUCHMOVE, this.enterFrame,false);
+		this.dom.addEventListener(this.EVENTNAME_TOUCHEND, this.onRelease,false);
+
+		this.timerToken = setInterval((e) => this.enterFrame(e),33);
 	}
 }
 $(document).ready(() => {

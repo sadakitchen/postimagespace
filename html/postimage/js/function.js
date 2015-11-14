@@ -1,8 +1,9 @@
 /// <reference path="jquery.d.ts" />
 var Ball = (function () {
-    function Ball(_dom, x, y, size) {
+    function Ball(_dom, x, y, size, color) {
         var _this = this;
         this.size = size;
+        this.color = color;
         this.spdX = 0;
         this.spdY = 0;
         this.isHold = false;
@@ -34,16 +35,16 @@ var Ball = (function () {
             }
             else {
                 // console.log(this.spdX);
-                if (_this.posX > _this.stageW - _this.size) {
-                    _this.posX = _this.stageW - _this.size;
+                if (_this.posX > _this.stageW - _this.size * 0.5) {
+                    _this.posX = _this.stageW - _this.size * 0.5;
                     _this.spdX = _this.spdX * -1;
                 }
-                if (_this.posX < 0) {
-                    _this.posX = 0;
+                if (_this.posX < 0 + _this.size * 0.5) {
+                    _this.posX = 0 + _this.size * 0.5;
                     _this.spdX = _this.spdX * -1;
                 }
-                if (_this.posY > _this.stageH - _this.size) {
-                    _this.posY = _this.stageH - _this.size;
+                if (_this.posY > _this.stageH - _this.size * 0.5) {
+                    _this.posY = _this.stageH - _this.size * 0.5;
                     _this.spdY = _this.spdY * -1;
                 }
                 if (_this.posY < 0 - _this.size) {
@@ -54,8 +55,8 @@ var Ball = (function () {
                 }
                 _this.posX += _this.spdX;
                 _this.posY += _this.spdY;
-                _this.dom.style.left = _this.posX + "px";
-                _this.dom.style.top = _this.posY + "px";
+                _this.dom.style.left = (_this.posX - _this.size * 0.5) + "px";
+                _this.dom.style.top = (_this.posY - _this.size * 0.5) + "px";
             }
         };
         this.onPress = function (e) {
@@ -76,16 +77,20 @@ var Ball = (function () {
             _this.stageW = w;
             _this.stageH = h;
         };
+        this.start = function () {
+            // プレスイベント
+            _this.dom.addEventListener(_this.EVENTNAME_TOUCHSTART, _this.onPress, false);
+            _this.dom.addEventListener(_this.EVENTNAME_TOUCHMOVE, _this.enterFrame, false);
+            _this.dom.addEventListener(_this.EVENTNAME_TOUCHEND, _this.onRelease, false);
+            _this.timerToken = setInterval(function (e) { return _this.enterFrame(e); }, 33);
+        };
         // this.isSupportTouch = ('ontouchstart' in window);
         console.log("isSupportTouch:" + this.isSupportTouch);
         this.posX = x;
         this.posY = y;
         this.dom = _dom;
-        // プレスイベント
-        this.dom.addEventListener(this.EVENTNAME_TOUCHSTART, this.onPress, false);
-        this.dom.addEventListener(this.EVENTNAME_TOUCHMOVE, this.enterFrame, false);
-        this.dom.addEventListener(this.EVENTNAME_TOUCHEND, this.onRelease, false);
-        this.timerToken = setInterval(function (e) { return _this.enterFrame(e); }, 33);
+        this.dom.style.left = this.posX + "px";
+        this.dom.style.top = this.posY + "px";
     }
     return Ball;
 })();
