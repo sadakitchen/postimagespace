@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=320,initial-scale=1.0">
+<meta name="viewport" content="width=320">
 <title>milkcocoaのテストPC</title>
 <meta name="description" content="milkcocoaのテストPC">
 <meta name="keywords" content="test,">
@@ -26,6 +26,10 @@
 
 <section id="Body">
 	<div id="output">
+		<div class="gameover">
+			<p class="title">GAMEOVER</p>
+			<div class="retry"><a href="javascript:void(0);">RETRY</a></div>
+		</div>
 		<p class="score">LIFE<span id="Count" class="count">100</span></p>
 		<div id="Ball" class="ball"></div>
 	</div>
@@ -46,7 +50,9 @@
 $(function(){
 
 	// 残ライフ
-	var life = 100;
+	var MAX_LIFE = 10;
+	var life = MAX_LIFE;
+	$('#Count').text(life);
 
 	// Ballクラス格納用array
 	var ball_list = [];
@@ -58,6 +64,24 @@ $(function(){
 	var image = document.getElementById('image');
 
 	var _player;
+
+	var isGameover = false;
+	$('.gameover').hide();
+	$('.gameover a').on('click',function(){
+		for(var i=0; shot_list.length; i++){
+			if(shot_list[i]){
+				shot_list[i].removeEventListener("sended",sendShot);
+				shot_list[i].removeEventListener("hitted", hit);
+				$(shot_list[i].dom).remove();
+			}
+		}
+		$('.shot').remove();
+		shot_list = [];
+
+		life = MAX_LIFE;
+		$('#Count').text(life);
+		$('.gameover').hide();
+	});
 
 	// app_idは自分のものに書き換えてください
 	var milkcocoa = new MilkCocoa("maxigxffjt7.mlkcca.com");
@@ -222,8 +246,14 @@ $(function(){
 		shot = null;
 
 		// ライフ減らす
-		life--;
-		$('#Count').text(life);
+		if(life > 0){
+			life--;
+			$('#Count').text(life);
+		} else {
+			life = 0;
+			$('#Count').text(0);
+			$('.gameover').show();
+		}
 	}
 
 });

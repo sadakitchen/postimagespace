@@ -6,7 +6,9 @@
 $(function(){
 
 	// 残ライフ
-	var life = 100;
+	var MAX_LIFE = 10;
+	var life = MAX_LIFE;
+	$('#Count').text(life);
 
 	//  Shotクラス格納用array
 	var shot_list = [];
@@ -14,6 +16,27 @@ $(function(){
 	var ball_dom = document.getElementById('Ball');
 
 	var _player;
+
+	var isGameover = false;
+	$('.gameover').hide();
+	$('.gameover a').on('click',function(){
+		console.log("1");
+		life = MAX_LIFE;
+		console.log("2");
+		$('#Count').text(life);
+		console.log("3");
+		$('.gameover').hide();
+		console.log("4");
+		
+		for(var i=0; shot_list.length; i++){
+			console.log( $(shot_list[i]).get(0) );
+			if(!$(shot_list[i]).get(0)) return;
+			shot_list[i].removeEventListener("sended",sendShot);
+			shot_list[i].removeEventListener("hitted", hit);
+			shot_list[i].destory();
+		}
+		shot_list = [];
+	});
 
 	// app_idは自分のものに書き換えてください :)
 	var milkcocoa = new MilkCocoa("maxigxffjt7.mlkcca.com");
@@ -166,8 +189,14 @@ $(function(){
 		shot = null;
 
 		// ライフ減らす
-		life--;
-		$('#Count').text(life);
+		if(life > 0){
+			life--;
+			$('#Count').text(life);
+		} else {
+			life = 0;
+			$('#Count').text(0);
+			$('.gameover').show();
+		}
 	}
 });
 </script>
@@ -176,7 +205,9 @@ $(function(){
 $(function(){
 
 	// 残ライフ
-	var life = 100;
+	var MAX_LIFE = 10;
+	var life = MAX_LIFE;
+	$('#Count').text(life);
 
 	// Ballクラス格納用array
 	var ball_list = [];
@@ -188,6 +219,24 @@ $(function(){
 	var image = document.getElementById('image');
 
 	var _player;
+
+	var isGameover = false;
+	$('.gameover').hide();
+	$('.gameover a').on('click',function(){
+		for(var i=0; shot_list.length; i++){
+			if(shot_list[i]){
+				shot_list[i].removeEventListener("sended",sendShot);
+				shot_list[i].removeEventListener("hitted", hit);
+				$(shot_list[i].dom).remove();
+			}
+		}
+		$('.shot').remove();
+		shot_list = [];
+
+		life = MAX_LIFE;
+		$('#Count').text(life);
+		$('.gameover').hide();
+	});
 
 	// app_idは自分のものに書き換えてください
 	var milkcocoa = new MilkCocoa("maxigxffjt7.mlkcca.com");
@@ -352,8 +401,14 @@ $(function(){
 		shot = null;
 
 		// ライフ減らす
-		life--;
-		$('#Count').text(life);
+		if(life > 0){
+			life--;
+			$('#Count').text(life);
+		} else {
+			life = 0;
+			$('#Count').text(0);
+			$('.gameover').show();
+		}
 	}
 
 });

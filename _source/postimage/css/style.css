@@ -96,3 +96,25 @@ section {
   font-size: 14px;
   margin: 0 0 0 4px;
 }
+
+.gameover {
+  position: absolute;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  color: #fff;
+  font-size: 24px;
+  font-weight: bold;
+}
+.gameover > p {
+  margin: 100px 0;
+}
+
+.retry a {
+  padding: 15px 30px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 30px;
+  color: #fff;
+  text-decoration: blink;
+  border: 2px solid #fff;
+}

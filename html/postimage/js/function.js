@@ -155,37 +155,6 @@ var Ball = (function (_super) {
                 _this.dispatchEvent(new events.Event("shot"));
             }
             else {
-                _this.posX += _this.spdX;
-                _this.posY += _this.spdY;
-                // console.log(this.spdX);
-                if (_this.posX > _this.stageW - _this.size * 0.5) {
-                    _this.posX = _this.stageW - _this.size * 0.5;
-                    _this.spdX = _this.spdX * -1;
-                }
-                if (_this.posX < 0 + _this.size * 0.5) {
-                    _this.posX = 0 + _this.size * 0.5;
-                    _this.spdX = _this.spdX * -1;
-                }
-                if (_this.posY > _this.stageH - _this.size * 0.5) {
-                    _this.posY = _this.stageH - _this.size * 0.5;
-                    _this.spdY = _this.spdY * -1;
-                }
-                // 上の壁にぶつかる場合 ==========================
-                if (_this.posY < 0 + _this.size * 0.5) {
-                    _this.posY = 0 * _this.size * 0.5;
-                    _this.spdY = _this.spdY * -1;
-                }
-                // 上へフレームアウトして反対側へ行く場合 ============
-                // if (this.posY < 0 - this.size) {
-                // 	this.posY = 0 - this.size;
-                // 	// this.spdY = this.spdY * -1;
-                // 	this.removeEventHandler();
-                // 	// send milkcococa by EventDispatcher
-                // 	// window.sendBall(ball);
-                // 	this.dispatchEvent(new events.Event("sended"));
-                // }
-                _this.dom.style.left = (_this.posX - _this.size * 0.5) + "px";
-                _this.dom.style.top = (_this.posY - _this.size * 0.5) + "px";
             }
         };
         this.onPress = function (e) {
@@ -258,8 +227,8 @@ var Shot = (function (_super) {
             // console.log("3:" + (_ball.posY - _ball.size * 0.5 > this.y));
             // console.log("4:" + (_ball.posY + _ball.size * 0.5 < this.y));
             if (_ball) {
-                if (_ball.posX - _ball.size * 0.5 < _this.x && _ball.posX + _ball.size * 0.5 > _this.x &&
-                    _ball.posY - _ball.size * 0.5 < _this.y && _ball.posY + _ball.size * 0.5 > _this.y) {
+                if (_ball.posX < _this.x && _ball.posX + _ball.size > _this.x &&
+                    _ball.posY < _this.y && _ball.posY + _ball.size > _this.y) {
                     _this.dispatchEvent(new events.Event("hitted"));
                     clearInterval(_this.timerToken);
                 }
@@ -273,6 +242,11 @@ var Shot = (function (_super) {
                 _this.dispatchEvent(new events.Event("sended"));
                 clearInterval(_this.timerToken);
             }
+        };
+        this.destory = function () {
+            clearInterval(_this.timerToken);
+            // this.dom.parentNode.removeChild(this.dom);
+            _this.dom.remove();
         };
         this.dom.style.left = (this.x) + "px";
         this.dom.style.top = (this.y) + "px";

@@ -70,6 +70,7 @@ class Ball extends events.EventDispatcher {
 			// shot!!!
 			this.dispatchEvent(new events.Event("shot"));
 		} else {
+			/*
 			this.posX += this.spdX;
 			this.posY += this.spdY;
 			// console.log(this.spdX);
@@ -105,6 +106,7 @@ class Ball extends events.EventDispatcher {
 
 			this.dom.style.left = (this.posX - this.size * 0.5)+"px";
 			this.dom.style.top = (this.posY - this.size * 0.5)+"px";
+			*/
 		}
 	}
 	private onPress = (e :any) => {
@@ -179,8 +181,8 @@ class Shot extends events.EventDispatcher {
 		// console.log("4:" + (_ball.posY + _ball.size * 0.5 < this.y));
 
 		if (_ball) {
-			if (_ball.posX - _ball.size * 0.5 < this.x && _ball.posX + _ball.size * 0.5 > this.x &&
-				_ball.posY - _ball.size * 0.5 < this.y && _ball.posY + _ball.size * 0.5 > this.y) {
+			if (_ball.posX < this.x && _ball.posX + _ball.size > this.x &&
+				_ball.posY < this.y && _ball.posY + _ball.size > this.y) {
 				this.dispatchEvent(new events.Event("hitted"));
 				clearInterval(this.timerToken);
 			}
@@ -194,6 +196,11 @@ class Shot extends events.EventDispatcher {
 			this.dispatchEvent(new events.Event("sended"));
 			clearInterval(this.timerToken);
 		}
+	}
+	public destory = (): void => {
+		clearInterval(this.timerToken);
+		// this.dom.parentNode.removeChild(this.dom);
+		this.dom.remove();
 	}
 }
 
