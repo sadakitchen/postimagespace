@@ -59,22 +59,37 @@ $(function(){
 
 	// Ballクラス格納用array
 	var ball_list = [];
+	//  Shotクラス格納用array
+	var shot_list = [];
 
 	var image = document.getElementById('image');
 
 	// app_idは自分のものに書き換えてください
 	var milkcocoa = new MilkCocoa("maxigxffjt7.mlkcca.com");
 	var ds = milkcocoa.dataStore('gravity');
+	var shot_ds = milkcocoa.dataStore('shot');
+	var shot_cli_ds = milkcocoa.dataStore('shot_cli');
 
 	ds.on('send', recieveBall);
+	shot_ds.on('send', recieveShot);
+
+
+	// タマをclientに送る
+	function sendShot(e){
+		var shot = e.currentTarget;
+		shot_cli_ds.send({
+			x: shot.x,
+			y: shot.y,
+			spd: shot.spd
+		});
+		shot.removeEventListener("sended",sendShot);
+		$(shot.dom).remove();
+		shot = null;
+	}
 
 	function recieveBall(sent){
 		$('#output').append('<div id="Ball'+ball_list.length+'" class="ball"></div>');
 		var _ball_dom = $('#Ball'+ball_list.length).get(0);
-
-		if(sent.value.mode === 'portrait'){
-			image.className = '';
-		}
 		
 		var _ball = new Ball(_ball_dom,
 													sent.value.posX,
@@ -94,6 +109,20 @@ $(function(){
 		_ball.start();
 		ball_list.push(_ball);
 	}
+
+	function recieveShot(sent){
+		$('#output').append('<div id="Shot'+shot_list.length+'" class="shot"></div>');
+		var _shot_dom = $('#Shot'+shot_list.length).get(0);
+		
+		var _shot = new Shot(_shot_dom,
+													sent.value.x,
+													sent.value.y+$('#Body').outerHeight(),
+													sent.value.spd);
+		
+		shot_list.push(_shot);
+		_shot.addEventListener("sended", sendShot );
+	}
+
 });
 </script>
 

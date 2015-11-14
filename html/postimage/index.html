@@ -45,6 +45,10 @@
 
 <script>
 $(function(){
+
+	//  Shotクラス格納用array
+	var shot_list = [];
+
 	var output = document.getElementById('output');
 	var ball_dom = document.getElementById('Ball');
 
@@ -53,6 +57,10 @@ $(function(){
 	// app_idは自分のものに書き換えてください
 	var milkcocoa = new MilkCocoa("maxigxffjt7.mlkcca.com");
 	var ds = milkcocoa.dataStore('gravity');
+	var shot_ds = milkcocoa.dataStore('shot');
+	var shot_cli_ds = milkcocoa.dataStore('shot_cli');
+
+	shot_cli_ds.on('send', recieveShot);
 	
 	// randomでカラー生成
 	function colorGen(){
@@ -105,7 +113,6 @@ $(function(){
 	// ボール生成
 	var generateBall = function (){
 		var _color = colorGen();
-		console.log(_color);
 		var _ball = new Ball(ball_dom,
 												$('#Body').outerWidth()*0.5,
 												$('#Body').outerHeight()*0.5,
@@ -124,9 +131,37 @@ $(function(){
 		});
 		_ball.start();
 		_ball.addEventListener("sended", sendBall );
+		_ball.addEventListener("shot", shot );
 	}
 	generateBall();
 
+	// タマ発射
+	function shot(e){
+		if($('#Shot').get(0)) return;
+		var _shotSpd = 5;
+		console.log("shot :: _shotSpd:"+_shotSpd);
+		var ball = e.currentTarget;
+		var _shotXPos = ball.posX;
+		var _shotYPos = ball.posY;
+
+		$('#output').append('<div id="Shot" class="shot"></div>');
+		var dom = $('#Shot').get(0);
+		var shot = new Shot(dom, _shotXPos,_shotYPos,_shotSpd);
+		shot.addEventListener("sended", sendShot );
+	}
+
+	// タマをclientに送る
+	function sendShot(e){
+		var shot = e.currentTarget;
+		shot_ds.send({
+			x: shot.x,
+			y: shot.y,
+			spd: shot.spd
+		});
+		shot.removeEventListener("sended",sendShot);
+		$(shot.dom).remove();
+		shot = null;
+	}
 	// ボールをclientに送る
 	function sendBall(e){
 		var ball = e.currentTarget;
@@ -146,38 +181,17 @@ $(function(){
 		generateBall();
 	}
 
-	/*
-	window.addEventListener('devicemotion', function(e){
-		gravity = e.accelerationIncludingGravity;
-
-		output.innerHTML
-		= 'x方向: '+gravity.x
-		+ '<br>y方向: '+gravity.y;
-
-		sendModeFromGravityValue(gravity);
-
-	},true);
-
-
-	function sendModeFromGravityValue(g){
-
-		// 絶対値を取得
-		var x = Math.sqrt(g.x * g.x);
-		var y = Math.sqrt(g.y * g.y);
-
-		// portrait -> landscape
-		if(currentMode === 'portrait' && x > 8.5 && y < 1.5){
-			currentMode = 'landscape';
-			ds.send({mode: currentMode});
-		}
-
-		// landscape -> portrait
-		if(currentMode === 'landscape' && x < 1.5 && y > 8.5){
-			currentMode = 'portrait';
-			ds.send({mode: currentMode});
-		}
+	function recieveShot(sent){
+		$('#output').append('<div id="Shot'+shot_list.length+'" class="shot"></div>');
+		var _shot_dom = $('#Shot'+shot_list.length).get(0);
+		
+		var _shot = new Shot(_shot_dom,
+													sent.value.x,
+													sent.value.y+$('#Body').outerHeight(),
+													sent.value.spd);
+		
+		shot_list.push(_shot);
 	}
-	*/
 });
 </script>
 

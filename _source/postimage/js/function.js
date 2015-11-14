@@ -104,14 +104,17 @@ var events;
     })();
     events.Event = Event;
 })(events || (events = {}));
+/// <reference path="jquery.d.ts" />
+/// <reference path="EventDispatcher.ts"/>
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-/// <reference path="jquery.d.ts" />
-/// <reference path="EventDispatcher.ts"/>
+/**
+ *	Ballクラス
+ */
 var Ball = (function (_super) {
     __extends(Ball, _super);
     function Ball(_dom, x, y, spdX, spdY, size, color) {
@@ -144,10 +147,12 @@ var Ball = (function (_super) {
                 // this.isSupportTouch = ('ontouchstart' in window);
                 // console.log(this.isSupportTouch);
                 // console.log("clY:" +clY);
-                var _posX = (clX - _this.size * 0.5);
-                var _posY = (clY - _this.size * 0.5);
-                _this.dom.style.left = _posX + "px";
-                _this.dom.style.top = _posY + "px";
+                _this.posX = (clX - _this.size * 0.5);
+                _this.posY = (clY - _this.size * 0.5);
+                _this.dom.style.left = _this.posX + "px";
+                _this.dom.style.top = _this.posY + "px";
+                // shot!!!
+                _this.dispatchEvent(new events.Event("shot"));
             }
             else {
                 _this.posX += _this.spdX;
@@ -218,6 +223,33 @@ var Ball = (function (_super) {
         this.dom.style.top = this.posY + "px";
     }
     return Ball;
+})(events.EventDispatcher);
+/**
+ *	Shotクラス
+     */
+var Shot = (function (_super) {
+    __extends(Shot, _super);
+    function Shot(dom, x, y, spd) {
+        var _this = this;
+        _super.call(this);
+        this.dom = dom;
+        this.x = x;
+        this.y = y;
+        this.spd = spd;
+        this.enterFrame = function (e) {
+            _this.y = _this.y - _this.spd;
+            _this.dom.style.left = (_this.x) + "px";
+            _this.dom.style.top = (_this.y) + "px";
+            if (_this.y < -10) {
+                _this.dispatchEvent(new events.Event("sended"));
+                clearInterval(_this.timerToken);
+            }
+        };
+        this.dom.style.left = (this.x) + "px";
+        this.dom.style.top = (this.y) + "px";
+        this.timerToken = setInterval(function (e) { return _this.enterFrame(e); }, 33);
+    }
+    return Shot;
 })(events.EventDispatcher);
 $(document).ready(function () {
 });

@@ -1,5 +1,9 @@
 /// <reference path="jquery.d.ts" />
 /// <reference path="EventDispatcher.ts"/>
+
+/**
+ *	Ballクラス
+ */
 class Ball extends events.EventDispatcher {
 	private posX: number;
 	private posY: number;
@@ -57,11 +61,14 @@ class Ball extends events.EventDispatcher {
 			// this.isSupportTouch = ('ontouchstart' in window);
 			// console.log(this.isSupportTouch);
 			// console.log("clY:" +clY);
-			var _posX: number = (clX - this.size * 0.5);
-			var _posY: number = (clY - this.size * 0.5);
+			this.posX = (clX - this.size * 0.5);
+			this.posY = (clY - this.size * 0.5);
 
-			this.dom.style.left = _posX+"px";
-			this.dom.style.top = _posY+"px";
+			this.dom.style.left = this.posX+"px";
+			this.dom.style.top = this.posY+"px";
+
+			// shot!!!
+			this.dispatchEvent(new events.Event("shot"));
 		} else {
 			this.posX += this.spdX;
 			this.posY += this.spdY;
@@ -129,6 +136,32 @@ class Ball extends events.EventDispatcher {
 		clearInterval(this.timerToken);
 	}
 }
+
+/**
+ *	Shotクラス
+	 */
+class Shot extends events.EventDispatcher {
+	private timerToken: number;
+	constructor(public dom: HTMLElement, private x: number, private y: number, private spd: number) {
+		super();
+
+		this.dom.style.left = (this.x)+"px";
+		this.dom.style.top = (this.y)+"px";
+
+		this.timerToken = setInterval((e) => this.enterFrame(e),33);
+	}
+	private enterFrame = (e: any): void => {
+		this.y = this.y - this.spd;
+		this.dom.style.left = (this.x)+"px";
+		this.dom.style.top = (this.y)+"px";
+
+		if (this.y < -10) {
+			this.dispatchEvent(new events.Event("sended"));
+			clearInterval(this.timerToken);
+		}
+	}
+}
+
 $(document).ready(() => {
 
 });
