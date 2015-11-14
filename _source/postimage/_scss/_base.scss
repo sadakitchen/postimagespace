@@ -4,6 +4,7 @@
 }
 section{
 	width: 100%;
+	overflow-x: hidden;
 	margin: 0 auto;
 }
 
@@ -11,9 +12,11 @@ section{
 	display: block;
 	position: absolute;
 	border-radius: 50%;
-	background-color: #f00;
+	background-color: transparent;
+	box-sizing: border-box;
 }
 #output{
 	width: 100%;
 	min-height: 350px;
+	background: #000;
 }

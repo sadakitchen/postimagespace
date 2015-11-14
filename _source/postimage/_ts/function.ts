@@ -40,6 +40,8 @@ class Ball extends events.EventDispatcher {
 	private enterFrame = (e: any): void => {
 		if (this.isHold === true) {
 			// console.log(e);
+			if (!e) return;
+
 			var clX: number = (this.isSupportTouch ? e.changedTouches[0].clientX : e.pageX);
 			var clY: number = (this.isSupportTouch ? e.changedTouches[0].clientY : e.pageY);
 
@@ -57,10 +59,12 @@ class Ball extends events.EventDispatcher {
 			// console.log("clY:" +clY);
 			var _posX: number = (clX - this.size * 0.5);
 			var _posY: number = (clY - this.size * 0.5);
-			console.log("_posX:" +_posX);
+
 			this.dom.style.left = _posX+"px";
 			this.dom.style.top = _posY+"px";
 		} else {
+			this.posX += this.spdX;
+			this.posY += this.spdY;
 			// console.log(this.spdX);
 			if (this.posX > this.stageW - this.size * 0.5) {
 				this.posX = this.stageW - this.size * 0.5;
@@ -77,22 +81,19 @@ class Ball extends events.EventDispatcher {
 			if (this.posY < 0 - this.size) {
 				this.posY = 0 - this.size;
 				// this.spdY = this.spdY * -1;
-				this.dom.removeEventListener(this.EVENTNAME_TOUCHMOVE,this.enterFrame,false);
-				clearInterval(this.timerToken);
+				this.removeEventHandler();
 
 				// send milkcococa by EventDispatcher
 				// window.sendBall(ball);
 				this.dispatchEvent(new events.Event("sended"));
 			}
-			this.posX += this.spdX;
-			this.posY += this.spdY;
 
 			this.dom.style.left = (this.posX - this.size * 0.5)+"px";
 			this.dom.style.top = (this.posY - this.size * 0.5)+"px";
 		}
 	}
 	private onPress = (e :any) => {
-		console.log("onPress");
+		// console.log("onPress");
 		if(e !== null){
 			e.preventDefault();
 		}
@@ -101,23 +102,31 @@ class Ball extends events.EventDispatcher {
 		clearInterval(this.timerToken);
 	}
 	private onRelease = () => {
-		console.log("onRelease");
+		// console.log("onRelease");
 		this.isHold = false;
 
 		this.timerToken = setInterval((e) => this.enterFrame(e),33);
 	}
 	public setRect = (w :number, h:number) => {
-		console.log("setRect: w:"+w + " h:"+h);
+		// console.log("setRect: w:"+w + " h:"+h);
 		this.stageW = w;
 		this.stageH = h;
 	}
 	public start = () => {
-		// プレスイベント
+		// イベントセット
 		this.dom.addEventListener(this.EVENTNAME_TOUCHSTART, this.onPress, false);
 		this.dom.addEventListener(this.EVENTNAME_TOUCHMOVE, this.enterFrame,false);
-		this.dom.addEventListener(this.EVENTNAME_TOUCHEND, this.onRelease,false);
+		window.addEventListener(this.EVENTNAME_TOUCHEND, this.onRelease,false);
 
 		this.timerToken = setInterval((e) => this.enterFrame(e),33);
+	}
+	public removeEventHandler = () => {
+		// イベントクリア
+		this.dom.removeEventListener(this.EVENTNAME_TOUCHSTART, this.onPress, false);
+		this.dom.removeEventListener(this.EVENTNAME_TOUCHMOVE, this.enterFrame,false);
+		window.removeEventListener(this.EVENTNAME_TOUCHEND, this.onRelease,false);
+
+		clearInterval(this.timerToken);
 	}
 }
 $(document).ready(() => {

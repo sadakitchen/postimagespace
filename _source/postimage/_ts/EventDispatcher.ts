@@ -12,7 +12,7 @@ module events {
 				e = new Event(type);
 			}
 
-			if(this.listeners[type] !== null){
+			if(this.listeners[type]){
 				e.currentTarget = this;
 				for (var i:number = 0; i < this.listeners[type].length; i++){
 					var listener: EventListener = this.listeners[type][i];
@@ -28,7 +28,7 @@ module events {
 		}
 
 		addEventListener(type: string, callback: Function, priolity: number = 0): void {
-			if(this.listeners[type] === null || this.listeners[type] === undefined ){
+			if(!this.listeners[type]){
 				this.listeners[type] = [];
 			}
 
@@ -62,7 +62,7 @@ module events {
 		}
 
 		hasEventListener(type:string, callback:Function):boolean {
-			if(this.listeners[type] === null) return false;
+			if(!this.listeners[type]) return false;
 			for(var i:number=0; i < this.listeners[type].length; i++){
 				var listener:EventListener = this.listeners[type][i];
 				if(listener.equalCurrentListener(type, callback)) {

@@ -15,7 +15,7 @@ var events;
                 type = event;
                 e = new Event(type);
             }
-            if (this.listeners[type] !== null) {
+            if (this.listeners[type]) {
                 e.currentTarget = this;
                 for (var i = 0; i < this.listeners[type].length; i++) {
                     var listener = this.listeners[type][i];
@@ -32,7 +32,7 @@ var events;
         };
         EventDispatcher.prototype.addEventListener = function (type, callback, priolity) {
             if (priolity === void 0) { priolity = 0; }
-            if (this.listeners[type] === null || this.listeners[type] === undefined) {
+            if (!this.listeners[type]) {
                 this.listeners[type] = [];
             }
             this.listeners[type].push(new EventListener(type, callback, priolity));
@@ -61,7 +61,7 @@ var events;
             return this.listeners[type].length > 0;
         };
         EventDispatcher.prototype.hasEventListener = function (type, callback) {
-            if (this.listeners[type] === null)
+            if (!this.listeners[type])
                 return false;
             for (var i = 0; i < this.listeners[type].length; i++) {
                 var listener = this.listeners[type][i];
@@ -129,6 +129,8 @@ var Ball = (function (_super) {
         this.enterFrame = function (e) {
             if (_this.isHold === true) {
                 // console.log(e);
+                if (!e)
+                    return;
                 var clX = (_this.isSupportTouch ? e.changedTouches[0].clientX : e.pageX);
                 var clY = (_this.isSupportTouch ? e.changedTouches[0].clientY : e.pageY);
                 _this.x1 = _this.x2;
@@ -144,11 +146,12 @@ var Ball = (function (_super) {
                 // console.log("clY:" +clY);
                 var _posX = (clX - _this.size * 0.5);
                 var _posY = (clY - _this.size * 0.5);
-                console.log("_posX:" + _posX);
                 _this.dom.style.left = _posX + "px";
                 _this.dom.style.top = _posY + "px";
             }
             else {
+                _this.posX += _this.spdX;
+                _this.posY += _this.spdY;
                 // console.log(this.spdX);
                 if (_this.posX > _this.stageW - _this.size * 0.5) {
                     _this.posX = _this.stageW - _this.size * 0.5;
@@ -165,20 +168,17 @@ var Ball = (function (_super) {
                 if (_this.posY < 0 - _this.size) {
                     _this.posY = 0 - _this.size;
                     // this.spdY = this.spdY * -1;
-                    _this.dom.removeEventListener(_this.EVENTNAME_TOUCHMOVE, _this.enterFrame, false);
-                    clearInterval(_this.timerToken);
+                    _this.removeEventHandler();
                     // send milkcococa by EventDispatcher
                     // window.sendBall(ball);
                     _this.dispatchEvent(new events.Event("sended"));
                 }
-                _this.posX += _this.spdX;
-                _this.posY += _this.spdY;
                 _this.dom.style.left = (_this.posX - _this.size * 0.5) + "px";
                 _this.dom.style.top = (_this.posY - _this.size * 0.5) + "px";
             }
         };
         this.onPress = function (e) {
-            console.log("onPress");
+            // console.log("onPress");
             if (e !== null) {
                 e.preventDefault();
             }
@@ -186,21 +186,28 @@ var Ball = (function (_super) {
             clearInterval(_this.timerToken);
         };
         this.onRelease = function () {
-            console.log("onRelease");
+            // console.log("onRelease");
             _this.isHold = false;
             _this.timerToken = setInterval(function (e) { return _this.enterFrame(e); }, 33);
         };
         this.setRect = function (w, h) {
-            console.log("setRect: w:" + w + " h:" + h);
+            // console.log("setRect: w:"+w + " h:"+h);
             _this.stageW = w;
             _this.stageH = h;
         };
         this.start = function () {
-            // プレスイベント
+            // イベントセット
             _this.dom.addEventListener(_this.EVENTNAME_TOUCHSTART, _this.onPress, false);
             _this.dom.addEventListener(_this.EVENTNAME_TOUCHMOVE, _this.enterFrame, false);
-            _this.dom.addEventListener(_this.EVENTNAME_TOUCHEND, _this.onRelease, false);
+            window.addEventListener(_this.EVENTNAME_TOUCHEND, _this.onRelease, false);
             _this.timerToken = setInterval(function (e) { return _this.enterFrame(e); }, 33);
+        };
+        this.removeEventHandler = function () {
+            // イベントクリア
+            _this.dom.removeEventListener(_this.EVENTNAME_TOUCHSTART, _this.onPress, false);
+            _this.dom.removeEventListener(_this.EVENTNAME_TOUCHMOVE, _this.enterFrame, false);
+            window.removeEventListener(_this.EVENTNAME_TOUCHEND, _this.onRelease, false);
+            clearInterval(_this.timerToken);
         };
         // this.isSupportTouch = ('ontouchstart' in window);
         console.log("isSupportTouch:" + this.isSupportTouch);

@@ -10,6 +10,16 @@
 <meta name="keywords" content="test,">
 <meta name="format-detection" content="telephone=no">
 <link href="./css/style.css" rel="stylesheet" type="text/css">
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png" />
+<link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png" />
+<link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png" />
+<link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png" />
+<link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png" />
 </head>
 
 <body class="page-sp">
@@ -38,32 +48,88 @@ $(function(){
 	var output = document.getElementById('output');
 	var ball_dom = document.getElementById('Ball');
 
+	var _self = this;
+
 	// app_idは自分のものに書き換えてください
 	var milkcocoa = new MilkCocoa("maxigxffjt7.mlkcca.com");
 	var ds = milkcocoa.dataStore('gravity');
 	
 	// randomでカラー生成
-	function colorGen(){ 
-		return '#'+Math.floor(Math.random()*16777215).toString(16); 
+	function colorGen(){
+		// 参考:http://www.peko-step.com/tool/hsvrgb.html
+		// RGB変数
+		var _r,_g,_b;
+		// HSVの値ランダム生成
+		var _h = Math.floor(Math.random()*360);		// 色相
+		var _s = Math.floor(Math.random()*255);		// 彩度
+		var _v = Math.floor(Math.random()*128)+127;	// 明度
+
+		// HSVの値からRGBの最大値、最小値算出
+		var _rgb_max = _v;
+		var _rgb_min = Math.floor(_rgb_max - ((_s/255)*_rgb_max));
+
+		// Hの値によって算出方法変更
+		if(_h >= 0 && _h < 60){
+			_r = _rgb_max;
+			_g = (_h / 60)*(_rgb_max - _rgb_min) + _rgb_min;
+			_b = _rgb_min;
+		} else if(_h >= 60 && _h < 120){
+			_r = ((120 - _h)/60)*(_rgb_max - _rgb_min) + _rgb_min;
+			_g = _rgb_max;
+			_b = _rgb_min;
+		} else if(_h >= 120 && _h < 180){
+			_r = _rgb_min;
+			_g = _rgb_max;
+			_b = ((_h - 120)/60)*(_rgb_max - _rgb_min) + _rgb_min;
+		} else if(_h >= 180 && _h < 240){
+			_r = _rgb_min;
+			_g = ((240 - _h)/60)*(_rgb_max - _rgb_min) + _rgb_min;
+			_b = _rgb_max;
+		} else if(_h >= 240 && _h < 300){
+			_r = ((_h - 240)/60)*(_rgb_max - _rgb_min) + _rgb_min;
+			_g = _rgb_min;
+			_b = _rgb_max;
+		} else if(_h >= 300 && _h < 360){
+			_r = _rgb_max;
+			_g = _rgb_min;
+			_b = ((360 - _h)/60)*(_rgb_max - _rgb_min) + _rgb_min;
+		}
+
+		var _r_str = (Math.floor(_r).toString(16).length < 2) ? "0"+Math.floor(_r).toString(16) : Math.floor(_r).toString(16);
+		var _g_str = (Math.floor(_g).toString(16).length < 2) ? "0"+Math.floor(_g).toString(16) : Math.floor(_g).toString(16);
+		var _b_str = (Math.floor(_b).toString(16).length < 2) ? "0"+Math.floor(_b).toString(16) : Math.floor(_b).toString(16);
+
+		return '#'+_r_str+_g_str+_b_str; 
 	}
 
-	var _color = colorGen();
-	var _ball = new Ball(ball_dom,200,200,0,0,60,_color);
-	_ball.setRect($('#Body').outerWidth(),$('#Body').outerHeight());
-	$('#Ball').css({
-		'left':_ball.posX+'px',
-		'top':_ball.posY+'px',
-		'width':_ball.size+'px',
-		'height':_ball.size+'px',
-		'background-color': _ball.color
-	});
-	_ball.start();
-	_ball.addEventListener("sended", function(){
-    sendBall(_ball);
-  });
+	// ボール生成
+	var generateBall = function (){
+		var _color = colorGen();
+		console.log(_color);
+		var _ball = new Ball(ball_dom,
+												$('#Body').outerWidth()*0.5,
+												$('#Body').outerHeight()*0.5,
+												0,
+												0,
+												60,
+												_color);
+		_ball.setRect($('#Body').outerWidth(),$('#Body').outerHeight());
+		$('#Ball').css({
+			'left':_ball.posX+'px',
+			'top':_ball.posY+'px',
+			'width':_ball.size+'px',
+			'height':_ball.size+'px',
+			'border': '2px solid ' + _ball.color,
+			'box-shadow': '0 0 50px ' + _ball.color +' inset'
+		});
+		_ball.start();
+		_ball.addEventListener("sended", sendBall );
+	}
+	generateBall();
 
 	// ボールをclientに送る
-	function sendBall(ball){
+	function sendBall(e){
+		var ball = e.currentTarget;
 		ds.send({
 			size: ball.size,
 			posX: ball.posX,
@@ -72,6 +138,12 @@ $(function(){
 			spdY: ball.spdY,
 			color: ball.color
 		});
+		ball.removeEventListener("sended",sendBall);
+		ball = null;
+		$('#Ball').remove();
+		$('#output').append('<div id="Ball" class="ball"></div>');
+		ball_dom = $('#Ball').get(0);
+		generateBall();
 	}
 
 	/*
