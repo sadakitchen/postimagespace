@@ -2,6 +2,8 @@
 class Ball {
 	private posX: number;
 	private posY: number;
+	private stageW: number;
+	private stageH: number;
 	private x1: number;
 	private y1: number;
 	private x2: number;
@@ -11,6 +13,10 @@ class Ball {
 	private isHold: boolean = false;
 	private timerToken: number;
 	public isSupportTouch: boolean = ('ontouchstart' in window);
+
+	private EVENTNAME_TOUCHSTART:string = this.isSupportTouch ? 'touchstart' : 'mousedown';
+	private EVENTNAME_TOUCHMOVE:string = this.isSupportTouch ? 'touchmove' : 'mousemove';
+	private EVENTNAME_TOUCHEND:string = this.isSupportTouch ? 'touchend' : 'mouseup';
 	public dom: HTMLElement;
 
 	constructor( _dom: HTMLElement, x: number, y: number, public size: number) {
@@ -23,14 +29,10 @@ class Ball {
 
 		this.dom = _dom;
 
-		var EVENTNAME_TOUCHSTART:string = this.isSupportTouch ? 'touchstart' : 'mousedown';
-		var EVENTNAME_TOUCHMOVE:string = this.isSupportTouch ? 'touchmove' : 'mousemove';
-		var EVENTNAME_TOUCHEND:string = this.isSupportTouch ? 'touchend' : 'mouseup';
-
 		// プレスイベント
-		this.dom.addEventListener(EVENTNAME_TOUCHSTART, this.onPress,false);
-		this.dom.addEventListener(EVENTNAME_TOUCHMOVE, this.enterFrame,false);
-		this.dom.addEventListener(EVENTNAME_TOUCHEND, this.onRelease,false);
+		this.dom.addEventListener(this.EVENTNAME_TOUCHSTART, this.onPress,false);
+		this.dom.addEventListener(this.EVENTNAME_TOUCHMOVE, this.enterFrame,false);
+		this.dom.addEventListener(this.EVENTNAME_TOUCHEND, this.onRelease,false);
 
 		this.timerToken = setInterval((e) => this.enterFrame(e),33);
 	}
@@ -60,21 +62,23 @@ class Ball {
 			this.dom.style.top = _posY+"px";
 		} else {
 			// console.log(this.spdX);
-			if (this.posX > 500 - this.size / 2) {
-				this.posX = 500 - this.size / 2;
+			if (this.posX > this.stageW - this.size) {
+				this.posX = this.stageW - this.size;
 				this.spdX = this.spdX * -1;
 			}
-			if (this.posX < 0 + this.size / 2) {
-				this.posX = 0 + this.size / 2;
+			if (this.posX < 0) {
+				this.posX = 0;
 				this.spdX = this.spdX * -1;
 			}
-			if (this.posY > 400 - this.size / 2) {
-				this.posY = 400 - this.size / 2;
+			if (this.posY > this.stageH - this.size) {
+				this.posY = this.stageH - this.size;
 				this.spdY = this.spdY * -1;
 			}
-			if (this.posY < 0 + this.size / 2) {
-				this.posY = 0 + this.size / 2;
-				this.spdY = this.spdY * -1;
+			if (this.posY < 0 - this.size) {
+				this.posY = 0 - this.size;
+				// this.spdY = this.spdY * -1;
+				this.dom.removeEventListener(this.EVENTNAME_TOUCHMOVE,this.enterFrame,false);
+				clearInterval(this.timerToken);
 			}
 			this.posX += this.spdX;
 			this.posY += this.spdY;
@@ -97,6 +101,11 @@ class Ball {
 		this.isHold = false;
 
 		this.timerToken = setInterval((e) => this.enterFrame(e),33);
+	}
+	public setRect = (w :number, h:number) => {
+		console.log("setRect: w:"+w + " h:"+h);
+		this.stageW = w;
+		this.stageH = h;
 	}
 }
 $(document).ready(() => {

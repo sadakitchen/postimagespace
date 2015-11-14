@@ -7,6 +7,9 @@ var Ball = (function () {
         this.spdY = 0;
         this.isHold = false;
         this.isSupportTouch = ('ontouchstart' in window);
+        this.EVENTNAME_TOUCHSTART = this.isSupportTouch ? 'touchstart' : 'mousedown';
+        this.EVENTNAME_TOUCHMOVE = this.isSupportTouch ? 'touchmove' : 'mousemove';
+        this.EVENTNAME_TOUCHEND = this.isSupportTouch ? 'touchend' : 'mouseup';
         this.enterFrame = function (e) {
             if (_this.isHold === true) {
                 // console.log(e);
@@ -31,21 +34,23 @@ var Ball = (function () {
             }
             else {
                 // console.log(this.spdX);
-                if (_this.posX > 500 - _this.size / 2) {
-                    _this.posX = 500 - _this.size / 2;
+                if (_this.posX > _this.stageW - _this.size) {
+                    _this.posX = _this.stageW - _this.size;
                     _this.spdX = _this.spdX * -1;
                 }
-                if (_this.posX < 0 + _this.size / 2) {
-                    _this.posX = 0 + _this.size / 2;
+                if (_this.posX < 0) {
+                    _this.posX = 0;
                     _this.spdX = _this.spdX * -1;
                 }
-                if (_this.posY > 400 - _this.size / 2) {
-                    _this.posY = 400 - _this.size / 2;
+                if (_this.posY > _this.stageH - _this.size) {
+                    _this.posY = _this.stageH - _this.size;
                     _this.spdY = _this.spdY * -1;
                 }
-                if (_this.posY < 0 + _this.size / 2) {
-                    _this.posY = 0 + _this.size / 2;
-                    _this.spdY = _this.spdY * -1;
+                if (_this.posY < 0 - _this.size) {
+                    _this.posY = 0 - _this.size;
+                    // this.spdY = this.spdY * -1;
+                    _this.dom.removeEventListener(_this.EVENTNAME_TOUCHMOVE, _this.enterFrame, false);
+                    clearInterval(_this.timerToken);
                 }
                 _this.posX += _this.spdX;
                 _this.posY += _this.spdY;
@@ -66,18 +71,20 @@ var Ball = (function () {
             _this.isHold = false;
             _this.timerToken = setInterval(function (e) { return _this.enterFrame(e); }, 33);
         };
+        this.setRect = function (w, h) {
+            console.log("setRect: w:" + w + " h:" + h);
+            _this.stageW = w;
+            _this.stageH = h;
+        };
         // this.isSupportTouch = ('ontouchstart' in window);
         console.log("isSupportTouch:" + this.isSupportTouch);
         this.posX = x;
         this.posY = y;
         this.dom = _dom;
-        var EVENTNAME_TOUCHSTART = this.isSupportTouch ? 'touchstart' : 'mousedown';
-        var EVENTNAME_TOUCHMOVE = this.isSupportTouch ? 'touchmove' : 'mousemove';
-        var EVENTNAME_TOUCHEND = this.isSupportTouch ? 'touchend' : 'mouseup';
         // プレスイベント
-        this.dom.addEventListener(EVENTNAME_TOUCHSTART, this.onPress, false);
-        this.dom.addEventListener(EVENTNAME_TOUCHMOVE, this.enterFrame, false);
-        this.dom.addEventListener(EVENTNAME_TOUCHEND, this.onRelease, false);
+        this.dom.addEventListener(this.EVENTNAME_TOUCHSTART, this.onPress, false);
+        this.dom.addEventListener(this.EVENTNAME_TOUCHMOVE, this.enterFrame, false);
+        this.dom.addEventListener(this.EVENTNAME_TOUCHEND, this.onRelease, false);
         this.timerToken = setInterval(function (e) { return _this.enterFrame(e); }, 33);
     }
     return Ball;

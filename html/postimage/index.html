@@ -44,6 +44,7 @@ $(function(){
 	var ds = milkcocoa.dataStore('gravity');
 
 	var _ball = new Ball(ball_dom,200,200,60);
+	_ball.setRect($('#Body').outerWidth(),$('#Body').outerHeight());
 	$('#Ball').css({
 		'left':_ball.posX+'px',
 		'top':_ball.posY+'px',
