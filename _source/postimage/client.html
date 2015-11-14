@@ -8,20 +8,10 @@ page: pc
 
 {% include header.html %}
 
-<style>
-#image{
-  -webkit-transition: all .25s ease-out;
-          transition: all .25s ease-out;
-  -webkit-transform: rotate(0deg);
-          transform: rotate(0deg);
-}
-#image.is-landscape{
-  -webkit-transform: rotate(90deg);
-          transform: rotate(90deg);
-}
-</style>
 <section id="Body">
 	<div id="output">
+		<p class="score">LIFE<span id="Count" class="count">100</span></p>
+		<div id="Ball" class="ball"></div>
 	</div>
 </section><!-- /#Body -->
 

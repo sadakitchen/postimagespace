@@ -2,9 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=320,initial-scale=1.0">
-
 <title>milkcocoaのテストSP</title>
 <meta name="description" content="milkcocoaのテストSP">
 <meta name="keywords" content="test,">
@@ -28,6 +26,7 @@
 
 <section id="Body">
 	<div id="output">
+		<p class="score">LIFE<span id="Count" class="count">100</span></p>
 		<div id="Ball" class="ball"></div>
 	</div>
 </section><!-- /#Body -->
@@ -46,15 +45,17 @@
 <script>
 $(function(){
 
+	// 残ライフ
+	var life = 100;
+
 	//  Shotクラス格納用array
 	var shot_list = [];
 
-	var output = document.getElementById('output');
 	var ball_dom = document.getElementById('Ball');
 
-	var _self = this;
+	var _player;
 
-	// app_idは自分のものに書き換えてください
+	// app_idは自分のものに書き換えてください :)
 	var milkcocoa = new MilkCocoa("maxigxffjt7.mlkcca.com");
 	var ds = milkcocoa.dataStore('gravity');
 	var shot_ds = milkcocoa.dataStore('shot');
@@ -113,25 +114,25 @@ $(function(){
 	// ボール生成
 	var generateBall = function (){
 		var _color = colorGen();
-		var _ball = new Ball(ball_dom,
+		_player = new Ball(ball_dom,
 												$('#Body').outerWidth()*0.5,
 												$('#Body').outerHeight()*0.5,
 												0,
 												0,
 												60,
 												_color);
-		_ball.setRect($('#Body').outerWidth(),$('#Body').outerHeight());
+		_player.setRect($('#Body').outerWidth(),$('#Body').outerHeight());
 		$('#Ball').css({
-			'left':_ball.posX+'px',
-			'top':_ball.posY+'px',
-			'width':_ball.size+'px',
-			'height':_ball.size+'px',
-			'border': '2px solid ' + _ball.color,
-			'box-shadow': '0 0 50px ' + _ball.color +' inset'
+			'left':_player.posX+'px',
+			'top':_player.posY+'px',
+			'width':_player.size+'px',
+			'height':_player.size+'px',
+			'border': '2px solid ' + _player.color,
+			'box-shadow': '0 0 50px ' + _player.color +' inset'
 		});
-		_ball.start();
-		_ball.addEventListener("sended", sendBall );
-		_ball.addEventListener("shot", shot );
+		_player.start();
+		// _player.addEventListener("sended", sendBall );
+		_player.addEventListener("shot", shot );
 	}
 	generateBall();
 
@@ -141,12 +142,13 @@ $(function(){
 		var _shotSpd = 5;
 		console.log("shot :: _shotSpd:"+_shotSpd);
 		var ball = e.currentTarget;
-		var _shotXPos = ball.posX;
-		var _shotYPos = ball.posY;
+		var _shotXPos = ball.posX + ball.size * 0.5;
+		var _shotYPos = ball.posY + ball.size * 0.5;
+		var _rectH = $('#Body').outerHeight();
 
 		$('#output').append('<div id="Shot" class="shot"></div>');
 		var dom = $('#Shot').get(0);
-		var shot = new Shot(dom, _shotXPos,_shotYPos,_shotSpd);
+		var shot = new Shot(dom, _shotXPos,_shotYPos,_shotSpd,_rectH,null);
 		shot.addEventListener("sended", sendShot );
 	}
 
@@ -184,13 +186,28 @@ $(function(){
 	function recieveShot(sent){
 		$('#output').append('<div id="Shot'+shot_list.length+'" class="shot"></div>');
 		var _shot_dom = $('#Shot'+shot_list.length).get(0);
-		
+		var _rectH = $('#Body').outerHeight();
 		var _shot = new Shot(_shot_dom,
 													sent.value.x,
 													sent.value.y+$('#Body').outerHeight(),
-													sent.value.spd);
+													sent.value.spd,
+													_rectH,
+													_player);
 		
 		shot_list.push(_shot);
+		_shot.addEventListener("sended", sendShot );
+		_shot.addEventListener("hitted", hit );
+	}
+
+	function hit(e){
+		var shot = e.currentTarget;
+		shot.removeEventListener("hitted", hit);
+		$(shot.dom).remove();
+		shot = null;
+
+		// ライフ減らす
+		life--;
+		$('#Count').text(life);
 	}
 });
 </script>

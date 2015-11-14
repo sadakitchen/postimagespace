@@ -5,8 +5,8 @@
  *	Ballクラス
  */
 class Ball extends events.EventDispatcher {
-	private posX: number;
-	private posY: number;
+	public posX: number;
+	public posY: number;
 	private stageW: number;
 	private stageH: number;
 	private x1: number;
@@ -85,22 +85,30 @@ class Ball extends events.EventDispatcher {
 				this.posY = this.stageH - this.size * 0.5;
 				this.spdY = this.spdY * -1;
 			}
-			if (this.posY < 0 - this.size) {
-				this.posY = 0 - this.size;
-				// this.spdY = this.spdY * -1;
-				this.removeEventHandler();
 
-				// send milkcococa by EventDispatcher
-				// window.sendBall(ball);
-				this.dispatchEvent(new events.Event("sended"));
+			// 上の壁にぶつかる場合 ==========================
+			if (this.posY < 0 + this.size * 0.5) {
+				this.posY = 0 * this.size * 0.5;
+				this.spdY = this.spdY * -1;
 			}
+
+			// 上へフレームアウトして反対側へ行く場合 ============
+			// if (this.posY < 0 - this.size) {
+			// 	this.posY = 0 - this.size;
+			// 	// this.spdY = this.spdY * -1;
+			// 	this.removeEventHandler();
+
+			// 	// send milkcococa by EventDispatcher
+			// 	// window.sendBall(ball);
+			// 	this.dispatchEvent(new events.Event("sended"));
+			// }
 
 			this.dom.style.left = (this.posX - this.size * 0.5)+"px";
 			this.dom.style.top = (this.posY - this.size * 0.5)+"px";
 		}
 	}
 	private onPress = (e :any) => {
-		// console.log("onPress");
+		console.log("onPress");
 		if(e !== null){
 			e.preventDefault();
 		}
@@ -109,10 +117,12 @@ class Ball extends events.EventDispatcher {
 		clearInterval(this.timerToken);
 	}
 	private onRelease = () => {
-		// console.log("onRelease");
+		console.log("onRelease");
 		this.isHold = false;
 
-		this.timerToken = setInterval((e) => this.enterFrame(e),33);
+		if (!this.timerToken) {
+			this.timerToken = setInterval((e) => this.enterFrame(e), 33);
+		}
 	}
 	public setRect = (w :number, h:number) => {
 		// console.log("setRect: w:"+w + " h:"+h);
@@ -142,12 +152,16 @@ class Ball extends events.EventDispatcher {
 	 */
 class Shot extends events.EventDispatcher {
 	private timerToken: number;
-	constructor(public dom: HTMLElement, private x: number, private y: number, private spd: number) {
+	constructor(public dom: HTMLElement,
+							private x: number,
+							private y: number,
+							private spd: number,
+							private rectH: number,
+							private player: Ball) {
 		super();
 
 		this.dom.style.left = (this.x)+"px";
 		this.dom.style.top = (this.y)+"px";
-
 		this.timerToken = setInterval((e) => this.enterFrame(e),33);
 	}
 	private enterFrame = (e: any): void => {
@@ -155,7 +169,28 @@ class Shot extends events.EventDispatcher {
 		this.dom.style.left = (this.x)+"px";
 		this.dom.style.top = (this.y)+"px";
 
-		if (this.y < -10) {
+		// ターゲットにあたっていたら
+		var _ball: Ball = this.player;
+		// console.log("X:" + _ball.posX + ":" + this.x + " Y:" +_ball.posY + ":" +this.y);
+
+		// console.log("1:" + (_ball.posX - _ball.size * 0.5 > this.x));
+		// console.log("2:" + (_ball.posX + _ball.size * 0.5 < this.x));
+		// console.log("3:" + (_ball.posY - _ball.size * 0.5 > this.y));
+		// console.log("4:" + (_ball.posY + _ball.size * 0.5 < this.y));
+
+		if (_ball) {
+			if (_ball.posX - _ball.size * 0.5 < this.x && _ball.posX + _ball.size * 0.5 > this.x &&
+				_ball.posY - _ball.size * 0.5 < this.y && _ball.posY + _ball.size * 0.5 > this.y) {
+				this.dispatchEvent(new events.Event("hitted"));
+				clearInterval(this.timerToken);
+			}
+		}
+
+		// 画面外に行った場合
+		if (this.y < -10 && this.spd > 0) {
+			this.dispatchEvent(new events.Event("sended"));
+			clearInterval(this.timerToken);
+		} else if (this.y > this.rectH+10 && this.spd < 0) {
 			this.dispatchEvent(new events.Event("sended"));
 			clearInterval(this.timerToken);
 		}

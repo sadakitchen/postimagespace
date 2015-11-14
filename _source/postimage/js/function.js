@@ -170,20 +170,26 @@ var Ball = (function (_super) {
                     _this.posY = _this.stageH - _this.size * 0.5;
                     _this.spdY = _this.spdY * -1;
                 }
-                if (_this.posY < 0 - _this.size) {
-                    _this.posY = 0 - _this.size;
-                    // this.spdY = this.spdY * -1;
-                    _this.removeEventHandler();
-                    // send milkcococa by EventDispatcher
-                    // window.sendBall(ball);
-                    _this.dispatchEvent(new events.Event("sended"));
+                // 上の壁にぶつかる場合 ==========================
+                if (_this.posY < 0 + _this.size * 0.5) {
+                    _this.posY = 0 * _this.size * 0.5;
+                    _this.spdY = _this.spdY * -1;
                 }
+                // 上へフレームアウトして反対側へ行く場合 ============
+                // if (this.posY < 0 - this.size) {
+                // 	this.posY = 0 - this.size;
+                // 	// this.spdY = this.spdY * -1;
+                // 	this.removeEventHandler();
+                // 	// send milkcococa by EventDispatcher
+                // 	// window.sendBall(ball);
+                // 	this.dispatchEvent(new events.Event("sended"));
+                // }
                 _this.dom.style.left = (_this.posX - _this.size * 0.5) + "px";
                 _this.dom.style.top = (_this.posY - _this.size * 0.5) + "px";
             }
         };
         this.onPress = function (e) {
-            // console.log("onPress");
+            console.log("onPress");
             if (e !== null) {
                 e.preventDefault();
             }
@@ -191,9 +197,11 @@ var Ball = (function (_super) {
             clearInterval(_this.timerToken);
         };
         this.onRelease = function () {
-            // console.log("onRelease");
+            console.log("onRelease");
             _this.isHold = false;
-            _this.timerToken = setInterval(function (e) { return _this.enterFrame(e); }, 33);
+            if (!_this.timerToken) {
+                _this.timerToken = setInterval(function (e) { return _this.enterFrame(e); }, 33);
+            }
         };
         this.setRect = function (w, h) {
             // console.log("setRect: w:"+w + " h:"+h);
@@ -229,18 +237,39 @@ var Ball = (function (_super) {
      */
 var Shot = (function (_super) {
     __extends(Shot, _super);
-    function Shot(dom, x, y, spd) {
+    function Shot(dom, x, y, spd, rectH, player) {
         var _this = this;
         _super.call(this);
         this.dom = dom;
         this.x = x;
         this.y = y;
         this.spd = spd;
+        this.rectH = rectH;
+        this.player = player;
         this.enterFrame = function (e) {
             _this.y = _this.y - _this.spd;
             _this.dom.style.left = (_this.x) + "px";
             _this.dom.style.top = (_this.y) + "px";
-            if (_this.y < -10) {
+            // ターゲットにあたっていたら
+            var _ball = _this.player;
+            // console.log("X:" + _ball.posX + ":" + this.x + " Y:" +_ball.posY + ":" +this.y);
+            // console.log("1:" + (_ball.posX - _ball.size * 0.5 > this.x));
+            // console.log("2:" + (_ball.posX + _ball.size * 0.5 < this.x));
+            // console.log("3:" + (_ball.posY - _ball.size * 0.5 > this.y));
+            // console.log("4:" + (_ball.posY + _ball.size * 0.5 < this.y));
+            if (_ball) {
+                if (_ball.posX - _ball.size * 0.5 < _this.x && _ball.posX + _ball.size * 0.5 > _this.x &&
+                    _ball.posY - _ball.size * 0.5 < _this.y && _ball.posY + _ball.size * 0.5 > _this.y) {
+                    _this.dispatchEvent(new events.Event("hitted"));
+                    clearInterval(_this.timerToken);
+                }
+            }
+            // 画面外に行った場合
+            if (_this.y < -10 && _this.spd > 0) {
+                _this.dispatchEvent(new events.Event("sended"));
+                clearInterval(_this.timerToken);
+            }
+            else if (_this.y > _this.rectH + 10 && _this.spd < 0) {
                 _this.dispatchEvent(new events.Event("sended"));
                 clearInterval(_this.timerToken);
             }

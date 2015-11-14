@@ -1,6 +1,8 @@
 .wrap{
 	width: 100%;
-	margin: 0 auto;
+	// margin: 0 auto;
+	margin: 0;
+	max-width: 320px;
 }
 section{
 	width: 100%;
@@ -28,4 +30,17 @@ section{
 	width: 100%;
 	min-height: 350px;
 	background: #000;
+	position: relative;
+}
+
+
+.score{
+	color: #fff;
+	position: absolute;
+	left: 4px;
+	bottom: 0;
+}
+.count{
+	font-size: 14px;
+	margin: 0 0 0 4px;
 }

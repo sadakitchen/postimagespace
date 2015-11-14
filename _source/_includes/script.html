@@ -5,15 +5,17 @@
 <script>
 $(function(){
 
+	// 残ライフ
+	var life = 100;
+
 	//  Shotクラス格納用array
 	var shot_list = [];
 
-	var output = document.getElementById('output');
 	var ball_dom = document.getElementById('Ball');
 
-	var _self = this;
+	var _player;
 
-	// app_idは自分のものに書き換えてください
+	// app_idは自分のものに書き換えてください :)
 	var milkcocoa = new MilkCocoa("maxigxffjt7.mlkcca.com");
 	var ds = milkcocoa.dataStore('gravity');
 	var shot_ds = milkcocoa.dataStore('shot');
@@ -72,25 +74,25 @@ $(function(){
 	// ボール生成
 	var generateBall = function (){
 		var _color = colorGen();
-		var _ball = new Ball(ball_dom,
+		_player = new Ball(ball_dom,
 												$('#Body').outerWidth()*0.5,
 												$('#Body').outerHeight()*0.5,
 												0,
 												0,
 												60,
 												_color);
-		_ball.setRect($('#Body').outerWidth(),$('#Body').outerHeight());
+		_player.setRect($('#Body').outerWidth(),$('#Body').outerHeight());
 		$('#Ball').css({
-			'left':_ball.posX+'px',
-			'top':_ball.posY+'px',
-			'width':_ball.size+'px',
-			'height':_ball.size+'px',
-			'border': '2px solid ' + _ball.color,
-			'box-shadow': '0 0 50px ' + _ball.color +' inset'
+			'left':_player.posX+'px',
+			'top':_player.posY+'px',
+			'width':_player.size+'px',
+			'height':_player.size+'px',
+			'border': '2px solid ' + _player.color,
+			'box-shadow': '0 0 50px ' + _player.color +' inset'
 		});
-		_ball.start();
-		_ball.addEventListener("sended", sendBall );
-		_ball.addEventListener("shot", shot );
+		_player.start();
+		// _player.addEventListener("sended", sendBall );
+		_player.addEventListener("shot", shot );
 	}
 	generateBall();
 
@@ -100,12 +102,13 @@ $(function(){
 		var _shotSpd = 5;
 		console.log("shot :: _shotSpd:"+_shotSpd);
 		var ball = e.currentTarget;
-		var _shotXPos = ball.posX;
-		var _shotYPos = ball.posY;
+		var _shotXPos = ball.posX + ball.size * 0.5;
+		var _shotYPos = ball.posY + ball.size * 0.5;
+		var _rectH = $('#Body').outerHeight();
 
 		$('#output').append('<div id="Shot" class="shot"></div>');
 		var dom = $('#Shot').get(0);
-		var shot = new Shot(dom, _shotXPos,_shotYPos,_shotSpd);
+		var shot = new Shot(dom, _shotXPos,_shotYPos,_shotSpd,_rectH,null);
 		shot.addEventListener("sended", sendShot );
 	}
 
@@ -143,13 +146,28 @@ $(function(){
 	function recieveShot(sent){
 		$('#output').append('<div id="Shot'+shot_list.length+'" class="shot"></div>');
 		var _shot_dom = $('#Shot'+shot_list.length).get(0);
-		
+		var _rectH = $('#Body').outerHeight();
 		var _shot = new Shot(_shot_dom,
 													sent.value.x,
 													sent.value.y+$('#Body').outerHeight(),
-													sent.value.spd);
+													sent.value.spd,
+													_rectH,
+													_player);
 		
 		shot_list.push(_shot);
+		_shot.addEventListener("sended", sendShot );
+		_shot.addEventListener("hitted", hit );
+	}
+
+	function hit(e){
+		var shot = e.currentTarget;
+		shot.removeEventListener("hitted", hit);
+		$(shot.dom).remove();
+		shot = null;
+
+		// ライフ減らす
+		life--;
+		$('#Count').text(life);
 	}
 });
 </script>
@@ -157,12 +175,19 @@ $(function(){
 <script>
 $(function(){
 
+	// 残ライフ
+	var life = 100;
+
 	// Ballクラス格納用array
 	var ball_list = [];
 	//  Shotクラス格納用array
 	var shot_list = [];
 
+	var ball_dom = document.getElementById('Ball');
+
 	var image = document.getElementById('image');
+
+	var _player;
 
 	// app_idは自分のものに書き換えてください
 	var milkcocoa = new MilkCocoa("maxigxffjt7.mlkcca.com");
@@ -172,6 +197,100 @@ $(function(){
 
 	ds.on('send', recieveBall);
 	shot_ds.on('send', recieveShot);
+
+
+
+
+	// randomでカラー生成
+	function colorGen(){
+		// 参考:http://www.peko-step.com/tool/hsvrgb.html
+		// RGB変数
+		var _r,_g,_b;
+		// HSVの値ランダム生成
+		var _h = Math.floor(Math.random()*360);		// 色相
+		var _s = Math.floor(Math.random()*255);		// 彩度
+		var _v = Math.floor(Math.random()*128)+127;	// 明度
+
+		// HSVの値からRGBの最大値、最小値算出
+		var _rgb_max = _v;
+		var _rgb_min = Math.floor(_rgb_max - ((_s/255)*_rgb_max));
+
+		// Hの値によって算出方法変更
+		if(_h >= 0 && _h < 60){
+			_r = _rgb_max;
+			_g = (_h / 60)*(_rgb_max - _rgb_min) + _rgb_min;
+			_b = _rgb_min;
+		} else if(_h >= 60 && _h < 120){
+			_r = ((120 - _h)/60)*(_rgb_max - _rgb_min) + _rgb_min;
+			_g = _rgb_max;
+			_b = _rgb_min;
+		} else if(_h >= 120 && _h < 180){
+			_r = _rgb_min;
+			_g = _rgb_max;
+			_b = ((_h - 120)/60)*(_rgb_max - _rgb_min) + _rgb_min;
+		} else if(_h >= 180 && _h < 240){
+			_r = _rgb_min;
+			_g = ((240 - _h)/60)*(_rgb_max - _rgb_min) + _rgb_min;
+			_b = _rgb_max;
+		} else if(_h >= 240 && _h < 300){
+			_r = ((_h - 240)/60)*(_rgb_max - _rgb_min) + _rgb_min;
+			_g = _rgb_min;
+			_b = _rgb_max;
+		} else if(_h >= 300 && _h < 360){
+			_r = _rgb_max;
+			_g = _rgb_min;
+			_b = ((360 - _h)/60)*(_rgb_max - _rgb_min) + _rgb_min;
+		}
+
+		var _r_str = (Math.floor(_r).toString(16).length < 2) ? "0"+Math.floor(_r).toString(16) : Math.floor(_r).toString(16);
+		var _g_str = (Math.floor(_g).toString(16).length < 2) ? "0"+Math.floor(_g).toString(16) : Math.floor(_g).toString(16);
+		var _b_str = (Math.floor(_b).toString(16).length < 2) ? "0"+Math.floor(_b).toString(16) : Math.floor(_b).toString(16);
+
+		return '#'+_r_str+_g_str+_b_str; 
+	}
+
+	// ボール生成
+	var generateBall = function (){
+		var _color = colorGen();
+		_player = new Ball(ball_dom,
+												$('#Body').outerWidth()*0.5,
+												$('#Body').outerHeight()*0.5,
+												0,
+												0,
+												60,
+												_color);
+		_player.setRect($('#Body').outerWidth(),$('#Body').outerHeight());
+		$('#Ball').css({
+			'left':_player.posX+'px',
+			'top':_player.posY+'px',
+			'width':_player.size+'px',
+			'height':_player.size+'px',
+			'border': '2px solid ' + _player.color,
+			'box-shadow': '0 0 50px ' + _player.color +' inset'
+		});
+		_player.start();
+		// _player.addEventListener("sended", sendBall );
+		_player.addEventListener("shot", shot );
+	}
+	generateBall();
+
+	// タマ発射
+	function shot(e){
+		if($('#Shot').get(0)) return;
+		var _shotSpd = 5;
+		console.log("shot :: _shotSpd:"+_shotSpd);
+		var ball = e.currentTarget;
+		var _shotXPos = ball.posX + ball.size * 0.5;
+		var _shotYPos = ball.posY + ball.size * 0.5;
+		var _rectH = $('#Body').outerHeight();
+
+		$('#output').append('<div id="Shot" class="shot"></div>');
+		var dom = $('#Shot').get(0);
+		var shot = new Shot(dom, _shotXPos,_shotYPos,_shotSpd,_rectH,null);
+		shot.addEventListener("sended", sendShot );
+	}
+
+
 
 
 	// タマをclientに送る
@@ -213,14 +332,28 @@ $(function(){
 	function recieveShot(sent){
 		$('#output').append('<div id="Shot'+shot_list.length+'" class="shot"></div>');
 		var _shot_dom = $('#Shot'+shot_list.length).get(0);
-		
+		var _rectH = $('#Body').outerHeight();
 		var _shot = new Shot(_shot_dom,
 													sent.value.x,
 													sent.value.y+$('#Body').outerHeight(),
-													sent.value.spd);
+													sent.value.spd,
+													_rectH,
+													_player);
 		
 		shot_list.push(_shot);
 		_shot.addEventListener("sended", sendShot );
+		_shot.addEventListener("hitted", hit );
+	}
+
+	function hit(e){
+		var shot = e.currentTarget;
+		shot.removeEventListener("hitted", hit);
+		$(shot.dom).remove();
+		shot = null;
+
+		// ライフ減らす
+		life--;
+		$('#Count').text(life);
 	}
 
 });
