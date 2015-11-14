@@ -35,7 +35,6 @@
 
 <script>
 $(function(){
-	var currentMode = 'portrait';
 	var output = document.getElementById('output');
 	var ball_dom = document.getElementById('Ball');
 
@@ -49,7 +48,7 @@ $(function(){
 	}
 
 	var _color = colorGen();
-	var _ball = new Ball(ball_dom,200,200,60,_color);
+	var _ball = new Ball(ball_dom,200,200,0,0,60,_color);
 	_ball.setRect($('#Body').outerWidth(),$('#Body').outerHeight());
 	$('#Ball').css({
 		'left':_ball.posX+'px',
@@ -59,6 +58,22 @@ $(function(){
 		'background-color': _ball.color
 	});
 	_ball.start();
+	_ball.addEventListener("sended", function(){
+    sendBall(_ball);
+  });
+
+	// ボールをclientに送る
+	function sendBall(ball){
+		ds.send({
+			size: ball.size,
+			posX: ball.posX,
+			posY: ball.posY,
+			spdX: ball.spdX,
+			spdY: ball.spdY,
+			color: ball.color
+		});
+	}
+
 	/*
 	window.addEventListener('devicemotion', function(e){
 		gravity = e.accelerationIncludingGravity;

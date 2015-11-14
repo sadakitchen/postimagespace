@@ -53,12 +53,12 @@ module.exports = function(grunt) {
       }
     },
 
-    jshint: {
-      dist: {
-        src: [ '_source/'+LP_DIR_NAME+'/js/*.js'],
-        ignores: ['_source/'+LP_DIR_NAME+'/js/**/*.js']
-      }
-    },
+    // jshint: {
+    //   dist: {
+    //     src: [ '_source/'+LP_DIR_NAME+'/js/*.js'],
+    //     ignores: ['_source/'+LP_DIR_NAME+'/js/**/*.js']
+    //   }
+    // },
 
     copy: {
       js_dist: {
@@ -132,7 +132,7 @@ module.exports = function(grunt) {
       },
       js: {
         files: ['_source/'+LP_DIR_NAME+'/js/*.js'],
-        tasks: ['jshint', 'copy:js_dist']
+        tasks: ['copy:js_dist']
       },
       server: {
         files: [

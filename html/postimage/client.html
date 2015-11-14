@@ -48,21 +48,42 @@
 <script>
 $(function(){
 
+	// Ballクラス格納用array
+	var ball_list = [];
+
 	var image = document.getElementById('image');
 
 	// app_idは自分のものに書き換えてください
 	var milkcocoa = new MilkCocoa("maxigxffjt7.mlkcca.com");
 	var ds = milkcocoa.dataStore('gravity');
 
-	ds.on('send', changeViewFromSentMode);
+	ds.on('send', recieveBall);
 
-	function changeViewFromSentMode(sent){
+	function recieveBall(sent){
+		$('#output').append('<div id="Ball'+ball_list.length+'" class="ball"></div>');
+		var _ball_dom = $('#Ball'+ball_list.length).get(0);
+
 		if(sent.value.mode === 'portrait'){
 			image.className = '';
 		}
-		if(sent.value.mode === 'landscape'){
-			image.className = 'is-landscape';
-		}
+		
+		var _ball = new Ball(_ball_dom,
+													sent.value.posX,
+													sent.value.posY+$('#Body').outerHeight(),
+													sent.value.spdX,
+													sent.value.spdY,
+													sent.value.size,
+													sent.value.color);
+		_ball.setRect($('#Body').outerWidth(),$('#Body').outerHeight());
+		$('#Ball'+ball_list.length).css({
+			'left':_ball.posX+'px',
+			'top':_ball.posY+'px',
+			'width':_ball.size+'px',
+			'height':_ball.size+'px',
+			'background-color': _ball.color
+		});
+		_ball.start();
+		ball_list.push(_ball);
 	}
 });
 </script>

@@ -1,5 +1,6 @@
 /// <reference path="jquery.d.ts" />
-class Ball {
+/// <reference path="EventDispatcher.ts"/>
+class Ball extends events.EventDispatcher {
 	private posX: number;
 	private posY: number;
 	private stageW: number;
@@ -8,8 +9,6 @@ class Ball {
 	private y1: number;
 	private x2: number;
 	private y2: number;
-	private spdX: number = 0;
-	private spdY: number = 0;
 	private isHold: boolean = false;
 	private timerToken: number;
 	public isSupportTouch: boolean = ('ontouchstart' in window);
@@ -19,8 +18,11 @@ class Ball {
 	private EVENTNAME_TOUCHEND:string = this.isSupportTouch ? 'touchend' : 'mouseup';
 	public dom: HTMLElement;
 
-	constructor( _dom: HTMLElement, x: number, y: number, public size: number, public color: string) {
-
+	constructor( _dom: HTMLElement, 
+							x: number, y: number,
+							private spdX: number, private spdY: number,
+							public size: number, public color: string) {
+		super();
 		// this.isSupportTouch = ('ontouchstart' in window);
 		console.log("isSupportTouch:" +this.isSupportTouch);
 
@@ -78,7 +80,9 @@ class Ball {
 				this.dom.removeEventListener(this.EVENTNAME_TOUCHMOVE,this.enterFrame,false);
 				clearInterval(this.timerToken);
 
-				// send milkcococa
+				// send milkcococa by EventDispatcher
+				// window.sendBall(ball);
+				this.dispatchEvent(new events.Event("sended"));
 			}
 			this.posX += this.spdX;
 			this.posY += this.spdY;
